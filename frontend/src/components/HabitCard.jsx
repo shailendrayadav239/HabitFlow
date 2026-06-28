@@ -1,3 +1,4 @@
+import { Flame, CheckCircle, Circle } from "lucide-react";
 import CalendarStrip from "./CalendarStrip";
 
 function HabitCard({ habit }) {
@@ -15,7 +16,7 @@ function HabitCard({ habit }) {
 
       {/* Streak */}
       <div className="flex items-center gap-2">
-        <span className="text-xl">🔥</span>
+        <Flame size={22} className="text-orange-500" />
         <span className="text-gray-900 dark:text-white font-bold text-2xl">
           {habit.streak}
         </span>
@@ -29,13 +30,23 @@ function HabitCard({ habit }) {
 
       {/* Tick Button */}
       <button
-        className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 mt-1 ${
+        className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 mt-1 flex items-center justify-center gap-2 ${
           habit.completedToday
             ? "bg-green-500 text-white cursor-default"
-            : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition"
+            : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-blue-600 hover:text-white hover:border-blue-600"
         }`}
       >
-        {habit.completedToday ? "✅ Done Today" : "Mark as Done"}
+        {habit.completedToday ? (
+          <>
+            <CheckCircle size={16} />
+            Done Today
+          </>
+        ) : (
+          <>
+            <Circle size={16} />
+            Mark as Done
+          </>
+        )}
       </button>
     </div>
   );

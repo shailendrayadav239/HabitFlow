@@ -1,3 +1,5 @@
+import { Check } from "lucide-react";
+
 function CalendarStrip({ completions = [] }) {
   const days = [];
   const today = new Date();
@@ -33,7 +35,7 @@ function CalendarStrip({ completions = [] }) {
                   : "border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500"
             }`}
           >
-            {day.isCompleted ? "✓" : day.date}
+            {day.isCompleted ? <Check size={14} /> : day.date}
           </div>
         </div>
       ))}

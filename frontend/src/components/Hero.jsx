@@ -1,9 +1,26 @@
+import {
+  CheckCircle,
+  Flame,
+  Calendar,
+  Bot,
+  Lock,
+  ArrowRight,
+} from "lucide-react";
+
+const features = [
+  { icon: <CheckCircle size={14} />, label: "Daily Habit Tracking" },
+  { icon: <Flame size={14} />, label: "Streak Counter" },
+  { icon: <Calendar size={14} />, label: "7-Day Calendar" },
+  { icon: <Bot size={14} />, label: "AI Habit Coach" },
+  { icon: <Lock size={14} />, label: "Private & Secure" },
+];
+
 function Hero({ onGetStarted }) {
   return (
     <section className="max-w-6xl mx-auto px-6 py-20 flex flex-col items-center text-center">
       {/* Badge */}
       <div className="bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 text-xs font-semibold px-4 py-2 rounded-full mb-6 border border-blue-100 dark:border-blue-900">
-        🌊 Build habits that last
+        Build habits that last
       </div>
 
       {/* Headline */}
@@ -14,19 +31,14 @@ function Hero({ onGetStarted }) {
         </span>
       </h1>
 
-      {/* Subtitle */}
-      <p className="text-gray-500 dark:text-gray-400 text-lg max-w-xl mb-10 leading-relaxed">
-        HabitFlow helps you build positive habits, track daily progress,
-        maintain streaks, and stay motivated with AI-powered coaching.
-      </p>
-
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={onGetStarted}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl text-lg transition shadow-lg shadow-blue-200 dark:shadow-none"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-2xl text-lg transition shadow-lg shadow-blue-200 dark:shadow-none"
         >
-          Get Started — It's Free 🚀
+          Get Started
+          <ArrowRight size={20} />
         </button>
         <button className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
           See How It Works
@@ -35,18 +47,13 @@ function Hero({ onGetStarted }) {
 
       {/* Feature Pills */}
       <div className="flex flex-wrap justify-center gap-3 mt-12">
-        {[
-          "✅ Daily Habit Tracking",
-          "🔥 Streak Counter",
-          "📅 7-Day Calendar",
-          "🤖 AI Habit Coach",
-          "🔐 Private & Secure",
-        ].map((feature) => (
+        {features.map((feature) => (
           <span
-            key={feature}
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm px-4 py-2 rounded-full shadow-sm"
+            key={feature.label}
+            className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm px-4 py-2 rounded-full shadow-sm"
           >
-            {feature}
+            <span className="text-blue-500">{feature.icon}</span>
+            {feature.label}
           </span>
         ))}
       </div>

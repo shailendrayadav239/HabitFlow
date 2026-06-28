@@ -1,3 +1,5 @@
+import { X } from "lucide-react";
+
 function AddHabitForm({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
@@ -9,9 +11,9 @@ function AddHabitForm({ onClose }) {
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-white text-2xl leading-none transition"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            ✕
+            <X size={20} />
           </button>
         </div>
 
@@ -56,4 +58,3 @@ function AddHabitForm({ onClose }) {
 }
 
 export default AddHabitForm;
-cd
