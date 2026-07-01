@@ -1,6 +1,27 @@
 import { X } from "lucide-react";
+import { useState } from "react";
+import { todayStr } from "../utils/habitUtils";
 
-function AddHabitForm({ onClose }) {
+function AddHabitForm({ onClose, setHabits }) {
+  const [name, setName] = useState("");
+  const [frequency, setFrequency] = useState("Daily");
+
+  const handleAdd = () => {
+    if (!name.trim()) return;
+
+    const newHabit = {
+      id: Date.now(),
+      name: name.trim(),
+      frequency,
+      streak: 0,
+      completedToday: false,
+      completions: [],
+    };
+
+    setHabits((prev) => [...prev, newHabit]);
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-800">
@@ -24,6 +45,8 @@ function AddHabitForm({ onClose }) {
           </label>
           <input
             type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Morning Run"
             className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
           />
@@ -34,9 +57,13 @@ function AddHabitForm({ onClose }) {
           <label className="text-gray-600 dark:text-gray-400 text-sm mb-1 block font-medium">
             Frequency
           </label>
-          <select className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
+          <select
+            value={frequency}
+            onChange={(e) => setFrequency(e.target.value)}
+            className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
           </select>
         </div>
 
@@ -48,7 +75,10 @@ function AddHabitForm({ onClose }) {
           >
             Cancel
           </button>
-          <button className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition">
+          <button
+            onClick={handleAdd}
+            className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"
+          >
             Add Habit
           </button>
         </div>

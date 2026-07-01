@@ -1,33 +1,38 @@
 import { ClipboardList, Flame, CheckCircle, Trophy } from "lucide-react";
 
-const stats = [
-  {
-    label: "Total Habits",
-    value: "3",
-    icon: <ClipboardList size={22} />,
-    color: "text-blue-500",
-  },
-  {
-    label: "Active Streaks",
-    value: "2",
-    icon: <Flame size={22} />,
-    color: "text-orange-500",
-  },
-  {
-    label: "Completed Today",
-    value: "2/3",
-    icon: <CheckCircle size={22} />,
-    color: "text-green-500",
-  },
-  {
-    label: "Best Streak",
-    value: "7 days",
-    icon: <Trophy size={22} />,
-    color: "text-yellow-500",
-  },
-];
+function StatsBar({ habits }) {
+  const totalHabits = habits.length;
+  const activeStreaks = habits.filter((h) => h.streak > 0).length;
+  const completedToday = habits.filter((h) => h.completedToday).length;
+  const bestStreak = habits.reduce((max, h) => Math.max(max, h.streak), 0);
 
-function StatsBar() {
+  const stats = [
+    {
+      label: "Total Habits",
+      value: totalHabits,
+      icon: <ClipboardList size={22} />,
+      color: "text-blue-500",
+    },
+    {
+      label: "Active Streaks",
+      value: activeStreaks,
+      icon: <Flame size={22} />,
+      color: "text-orange-500",
+    },
+    {
+      label: "Completed Today",
+      value: `${completedToday}/${totalHabits}`,
+      icon: <CheckCircle size={22} />,
+      color: "text-green-500",
+    },
+    {
+      label: "Best Streak",
+      value: `${bestStreak} days`,
+      icon: <Trophy size={22} />,
+      color: "text-yellow-500",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {stats.map((stat) => (
