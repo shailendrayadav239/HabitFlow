@@ -4,79 +4,45 @@ import Hero from "./components/Hero";
 import StatsBar from "./components/StatsBar";
 import HabitList from "./components/HabitList";
 import AddHabitForm from "./components/AddHabitForm";
+import { fetchHabits } from "./api/habitApi";
 import { computeStreak, isStreakBroken, todayStr } from "./utils/habitUtils";
-
-const daysAgo = (n) => {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.toISOString().split("T")[0];
-};
-
-const initialHabits = [
-  {
-    id: 1,
-    name: "Morning Run",
-    frequency: "Daily",
-    streak: 5,
-    completedToday: true,
-    completions: [
-      daysAgo(6),
-      daysAgo(5),
-      daysAgo(4),
-      daysAgo(3),
-      daysAgo(2),
-      daysAgo(1),
-      daysAgo(0),
-    ],
-  },
-  {
-    id: 2,
-    name: "Read 30 mins",
-    frequency: "Daily",
-    streak: 3,
-    completedToday: false,
-    completions: [daysAgo(4), daysAgo(2), daysAgo(1)],
-  },
-  {
-    id: 3,
-    name: "Drink 2L Water",
-    frequency: "Daily",
-    streak: 7,
-    completedToday: true,
-    completions: [
-      daysAgo(6),
-      daysAgo(5),
-      daysAgo(4),
-      daysAgo(3),
-      daysAgo(2),
-      daysAgo(1),
-      daysAgo(0),
-    ],
-  },
-];
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showHabits, setShowHabits] = useState(false);
-  const [habits, setHabits] = useState(initialHabits);
+  const [habits, setHabits] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Task 4 — useEffect: reset broken streaks on app load
+  // Fetch habits from MongoDB on app load
   useEffect(() => {
-    setHabits((prev) =>
-      prev.map((habit) => {
-        const broken = isStreakBroken(habit.completions);
-        const streak = computeStreak(habit.completions);
-        const completedToday = habit.completions
-          .map((d) => d.toString().split("T")[0])
-          .includes(todayStr);
-        return {
-          ...habit,
-          streak: broken ? 0 : streak,
-          completedToday,
-        };
-      }),
-    );
+    const loadHabits = async () => {
+      try {
+        const { data } = await fetchHabits();
+        const processed = data.map((habit) => {
+          const completionStrs = habit.completions.map(
+            (d) => new Date(d).toISOString().split("T")[0],
+          );
+          const completedToday = completionStrs.includes(todayStr);
+          const streak = isStreakBroken(completionStrs)
+            ? 0
+            : computeStreak(completionStrs);
+          return {
+            ...habit,
+            id: habit._id,
+            completions: completionStrs,
+            completedToday,
+            streak,
+          };
+        });
+        setHabits(processed);
+      } catch (error) {
+        console.error("Failed to fetch habits:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadHabits();
   }, []);
 
   return (
@@ -111,7 +77,24 @@ function App() {
                   + Add Habit
                 </button>
               </div>
-              <HabitList habits={habits} setHabits={setHabits} />
+
+              {/* Task 6 — Loading skeleton */}
+              {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 h-48 animate-pulse"
+                    >
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-3/4" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-1/2" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <HabitList habits={habits} setHabits={setHabits} />
+              )}
             </div>
           </main>
         )}

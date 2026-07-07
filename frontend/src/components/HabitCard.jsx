@@ -1,29 +1,41 @@
 import { Flame, CheckCircle, Circle, Trash2 } from "lucide-react";
 import CalendarStrip from "./CalendarStrip";
 import { computeStreak, todayStr } from "../utils/habitUtils";
+import { completeHabit, deleteHabit } from "../api/habitApi";
 
 function HabitCard({ habit, setHabits }) {
-  // Task 2 — Toggle today's completion
-  const toggleToday = () => {
+  // Toggle today's completion via API
+  const toggleToday = async () => {
     if (habit.completedToday) return;
-
-    setHabits((prev) =>
-      prev.map((h) => {
-        if (h.id !== habit.id) return h;
-        const newCompletions = [...h.completions, todayStr];
-        return {
-          ...h,
-          completedToday: true,
-          completions: newCompletions,
-          streak: computeStreak(newCompletions), // Task 3 — live streak update
-        };
-      }),
-    );
+    try {
+      await completeHabit(habit._id || habit.id);
+      setHabits((prev) =>
+        prev.map((h) => {
+          if ((h._id || h.id) !== (habit._id || habit.id)) return h;
+          const newCompletions = [...h.completions, todayStr];
+          return {
+            ...h,
+            completedToday: true,
+            completions: newCompletions,
+            streak: computeStreak(newCompletions),
+          };
+        }),
+      );
+    } catch (error) {
+      console.error("Failed to complete habit:", error);
+    }
   };
 
-  // Task 5 — Delete habit
-  const deleteHabit = () => {
-    setHabits((prev) => prev.filter((h) => h.id !== habit.id));
+  // Delete habit via API
+  const handleDelete = async () => {
+    try {
+      await deleteHabit(habit._id || habit.id);
+      setHabits((prev) =>
+        prev.filter((h) => (h._id || h.id) !== (habit._id || habit.id)),
+      );
+    } catch (error) {
+      console.error("Failed to delete habit:", error);
+    }
   };
 
   return (
@@ -37,9 +49,8 @@ function HabitCard({ habit, setHabits }) {
           <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-1 rounded-full border border-blue-100 dark:border-blue-900">
             {habit.frequency}
           </span>
-          {/* Delete Button */}
           <button
-            onClick={deleteHabit}
+            onClick={handleDelete}
             className="text-gray-400 hover:text-red-500 transition"
           >
             <Trash2 size={16} />
@@ -47,7 +58,7 @@ function HabitCard({ habit, setHabits }) {
         </div>
       </div>
 
-      {/* Streak — Task 3 */}
+      {/* Streak */}
       <div className="flex items-center gap-2">
         <Flame size={22} className="text-orange-500" />
         <span className="text-gray-900 dark:text-white font-bold text-2xl">
@@ -61,7 +72,7 @@ function HabitCard({ habit, setHabits }) {
       {/* Calendar Strip */}
       <CalendarStrip completions={habit.completions} />
 
-      {/* Tick Button — Task 6 */}
+      {/* Tick Button */}
       <button
         onClick={toggleToday}
         className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 mt-1 flex items-center justify-center gap-2 ${

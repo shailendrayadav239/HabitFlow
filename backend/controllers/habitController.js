@@ -1,96 +1,101 @@
-// Temporary in-memory storage (will be replaced with MongoDB in Week 4)
-let habits = [
-  {
-    id: "1",
-    name: "Morning Run",
-    frequency: "Daily",
-    completions: [],
-    userId: "temp",
-  },
-  {
-    id: "2",
-    name: "Read 30 mins",
-    frequency: "Daily",
-    completions: [],
-    userId: "temp",
-  },
-  {
-    id: "3",
-    name: "Drink 2L Water",
-    frequency: "Daily",
-    completions: [],
-    userId: "temp",
-  },
-];
+const Habit = require("../models/Habit");
 
 // GET /api/habits
-const getHabits = (req, res) => {
-  res.json(habits);
+const getHabits = async (req, res) => {
+  try {
+    const habits = await Habit.find({ userId: "temp" });
+    res.json(habits);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // POST /api/habits
-const createHabit = (req, res) => {
-  const { name, frequency } = req.body;
+const createHabit = async (req, res) => {
+  try {
+    const { name, frequency } = req.body;
 
-  if (!name || !frequency) {
-    return res.status(400).json({ message: "Name and frequency are required" });
+    if (!name || !frequency) {
+      return res
+        .status(400)
+        .json({ message: "Name and frequency are required" });
+    }
+
+    const habit = await Habit.create({
+      name,
+      frequency,
+      completions: [],
+      userId: "temp",
+    });
+
+    res.status(201).json(habit);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  const newHabit = {
-    id: Date.now().toString(),
-    name,
-    frequency,
-    completions: [],
-    userId: "temp",
-  };
-
-  habits.push(newHabit);
-  res.status(201).json(newHabit);
 };
 
 // DELETE /api/habits/:id
-const deleteHabit = (req, res) => {
-  const { id } = req.params;
-  const habit = habits.find((h) => h.id === id);
+const deleteHabit = async (req, res) => {
+  try {
+    const habit = await Habit.findById(req.params.id);
 
-  if (!habit) {
-    return res.status(404).json({ message: "Habit not found" });
+    if (!habit) {
+      return res.status(404).json({ message: "Habit not found" });
+    }
+
+    await Habit.findByIdAndDelete(req.params.id);
+    res.json({ message: "Habit deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  habits = habits.filter((h) => h.id !== id);
-  res.json({ message: "Habit deleted successfully" });
 };
 
 // POST /api/habits/:id/complete
-const completeHabit = (req, res) => {
-  const { id } = req.params;
-  const habit = habits.find((h) => h.id === id);
+const completeHabit = async (req, res) => {
+  try {
+    const habit = await Habit.findById(req.params.id);
 
-  if (!habit) {
-    return res.status(404).json({ message: "Habit not found" });
+    if (!habit) {
+      return res.status(404).json({ message: "Habit not found" });
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+
+    // Validate no duplicate completion for same date
+    const alreadyCompleted = habit.completions.some(
+      (date) => new Date(date).toISOString().split("T")[0] === today,
+    );
+
+    if (alreadyCompleted) {
+      return res.status(400).json({ message: "Habit already completed today" });
+    }
+
+    habit.completions.push(new Date());
+    await habit.save();
+
+    res.json(habit);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  const today = new Date().toISOString().split("T")[0];
-
-  // Task 6 — Validate no duplicate completion for same date
-  if (habit.completions.includes(today)) {
-    return res.status(400).json({ message: "Habit already completed today" });
-  }
-
-  habit.completions.push(today);
-  res.json(habit);
 };
 
 // GET /api/habits/:id/history
-const getHabitHistory = (req, res) => {
-  const { id } = req.params;
-  const habit = habits.find((h) => h.id === id);
+const getHabitHistory = async (req, res) => {
+  try {
+    const habit = await Habit.findById(req.params.id);
 
-  if (!habit) {
-    return res.status(404).json({ message: "Habit not found" });
+    if (!habit) {
+      return res.status(404).json({ message: "Habit not found" });
+    }
+
+    res.json({
+      id: habit._id,
+      name: habit.name,
+      completions: habit.completions,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  res.json({ id: habit.id, name: habit.name, completions: habit.completions });
 };
 
 module.exports = {

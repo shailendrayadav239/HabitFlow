@@ -1,25 +1,32 @@
 import { X } from "lucide-react";
 import { useState } from "react";
+import { createHabit } from "../api/habitApi";
 import { todayStr } from "../utils/habitUtils";
 
 function AddHabitForm({ onClose, setHabits }) {
   const [name, setName] = useState("");
   const [frequency, setFrequency] = useState("Daily");
+  const [loading, setLoading] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!name.trim()) return;
-
-    const newHabit = {
-      id: Date.now(),
-      name: name.trim(),
-      frequency,
-      streak: 0,
-      completedToday: false,
-      completions: [],
-    };
-
-    setHabits((prev) => [...prev, newHabit]);
-    onClose();
+    setLoading(true);
+    try {
+      const { data } = await createHabit({ name: name.trim(), frequency });
+      const newHabit = {
+        ...data,
+        id: data._id,
+        completions: [],
+        completedToday: false,
+        streak: 0,
+      };
+      setHabits((prev) => [...prev, newHabit]);
+      onClose();
+    } catch (error) {
+      console.error("Failed to create habit:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,9 +84,10 @@ function AddHabitForm({ onClose, setHabits }) {
           </button>
           <button
             onClick={handleAdd}
-            className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"
+            disabled={loading}
+            className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-50"
           >
-            Add Habit
+            {loading ? "Adding..." : "Add Habit"}
           </button>
         </div>
       </div>

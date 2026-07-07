@@ -3,8 +3,12 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
+const connectDB = require("./config/db");
 
 dotenv.config();
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 
