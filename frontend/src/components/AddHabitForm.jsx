@@ -6,13 +6,20 @@ import { todayStr } from "../utils/habitUtils";
 function AddHabitForm({ onClose, setHabits }) {
   const [name, setName] = useState("");
   const [frequency, setFrequency] = useState("Daily");
+  const [startDate, setStartDate] = useState(todayStr);
+  const [dueDate, setDueDate] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleAdd = async () => {
     if (!name.trim()) return;
     setLoading(true);
     try {
-      const { data } = await createHabit({ name: name.trim(), frequency });
+      const { data } = await createHabit({
+        name: name.trim(),
+        frequency,
+        startDate,
+        dueDate: dueDate || null,
+      });
       const newHabit = {
         ...data,
         id: data._id,
@@ -32,7 +39,6 @@ function AddHabitForm({ onClose, setHabits }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-800">
-        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-gray-900 dark:text-white text-xl font-bold">
             Add New Habit
@@ -45,7 +51,6 @@ function AddHabitForm({ onClose, setHabits }) {
           </button>
         </div>
 
-        {/* Habit Name */}
         <div className="mb-4">
           <label className="text-gray-600 dark:text-gray-400 text-sm mb-1 block font-medium">
             Habit Name
@@ -59,8 +64,7 @@ function AddHabitForm({ onClose, setHabits }) {
           />
         </div>
 
-        {/* Frequency */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="text-gray-600 dark:text-gray-400 text-sm mb-1 block font-medium">
             Frequency
           </label>
@@ -74,7 +78,31 @@ function AddHabitForm({ onClose, setHabits }) {
           </select>
         </div>
 
-        {/* Buttons */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div>
+            <label className="text-gray-600 dark:text-gray-400 text-sm mb-1 block font-medium">
+              Start Date
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="text-gray-600 dark:text-gray-400 text-sm mb-1 block font-medium">
+              Due Date
+            </label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
         <div className="flex gap-3">
           <button
             onClick={onClose}

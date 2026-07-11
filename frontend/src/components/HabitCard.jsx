@@ -1,10 +1,18 @@
-import { Flame, CheckCircle, Circle, Trash2 } from "lucide-react";
+import { Flame, Check, Trash2 } from "lucide-react";
 import CalendarStrip from "./CalendarStrip";
-import { computeStreak, todayStr } from "../utils/habitUtils";
+import { computeStreak, todayStr, getHabitStatus } from "../utils/habitUtils";
 import { completeHabit, deleteHabit } from "../api/habitApi";
 
+const statusColors = {
+  Pending: "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400",
+  "In Progress":
+    "bg-yellow-50 dark:bg-yellow-950 text-yellow-600 dark:text-yellow-400",
+  Completed: "bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400",
+};
+
 function HabitCard({ habit, setHabits }) {
-  // Toggle today's completion via API
+  const status = getHabitStatus(habit);
+
   const toggleToday = async () => {
     if (habit.completedToday) return;
     try {
@@ -26,7 +34,6 @@ function HabitCard({ habit, setHabits }) {
     }
   };
 
-  // Delete habit via API
   const handleDelete = async () => {
     try {
       await deleteHabit(habit._id || habit.id);
@@ -39,29 +46,38 @@ function HabitCard({ habit, setHabits }) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 flex flex-col gap-3 shadow-sm hover:shadow-md transition-shadow">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-          {habit.name}
-        </h2>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-1 rounded-full border border-blue-100 dark:border-blue-900">
-            {habit.frequency}
-          </span>
-          <button
-            onClick={handleDelete}
-            className="text-gray-400 hover:text-red-500 transition"
-          >
-            <Trash2 size={16} />
-          </button>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950 flex items-center justify-center">
+            <Flame size={18} className="text-orange-500" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white leading-tight">
+              {habit.name}
+            </h2>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {habit.frequency}
+              </span>
+              <span
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${statusColors[status]}`}
+              >
+                {status}
+              </span>
+            </div>
+          </div>
         </div>
+        <button
+          onClick={handleDelete}
+          className="text-gray-300 dark:text-gray-600 hover:text-red-500 transition p-1"
+        >
+          <Trash2 size={16} />
+        </button>
       </div>
 
-      {/* Streak */}
-      <div className="flex items-center gap-2">
-        <Flame size={22} className="text-orange-500" />
-        <span className="text-gray-900 dark:text-white font-bold text-2xl">
+      <div className="flex items-baseline gap-1.5">
+        <span className="text-gray-900 dark:text-white font-bold text-3xl">
           {habit.streak}
         </span>
         <span className="text-gray-400 dark:text-gray-500 text-sm">
@@ -69,29 +85,18 @@ function HabitCard({ habit, setHabits }) {
         </span>
       </div>
 
-      {/* Calendar Strip */}
       <CalendarStrip completions={habit.completions} />
 
-      {/* Tick Button */}
       <button
         onClick={toggleToday}
-        className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 mt-1 flex items-center justify-center gap-2 ${
+        className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
           habit.completedToday
             ? "bg-green-500 text-white cursor-default"
             : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-blue-600 hover:text-white hover:border-blue-600"
         }`}
       >
-        {habit.completedToday ? (
-          <>
-            <CheckCircle size={16} />
-            Done Today
-          </>
-        ) : (
-          <>
-            <Circle size={16} />
-            Mark as Done
-          </>
-        )}
+        <Check size={16} />
+        {habit.completedToday ? "Done Today" : "Mark as Done"}
       </button>
     </div>
   );

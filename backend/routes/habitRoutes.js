@@ -7,6 +7,7 @@ const {
   completeHabit,
   getHabitHistory,
 } = require("../controllers/habitController");
+const { protect } = require("../middleware/authMiddleware");
 
 /**
  * @swagger
@@ -18,7 +19,7 @@ const {
  *       200:
  *         description: List of all habits
  */
-router.get("/", getHabits);
+router.get("/", protect, getHabits);
 
 /**
  * @swagger
@@ -41,7 +42,7 @@ router.get("/", getHabits);
  *       201:
  *         description: Habit created successfully
  */
-router.post("/", createHabit);
+router.post("/", protect, createHabit);
 
 /**
  * @swagger
@@ -59,7 +60,7 @@ router.post("/", createHabit);
  *       200:
  *         description: Habit deleted successfully
  */
-router.delete("/:id", deleteHabit);
+router.delete("/:id", protect, deleteHabit);
 
 /**
  * @swagger
@@ -76,16 +77,14 @@ router.delete("/:id", deleteHabit);
  *     responses:
  *       200:
  *         description: Habit completed successfully
- *       400:
- *         description: Habit already completed today
  */
-router.post("/:id/complete", completeHabit);
+router.post("/:id/complete", protect, completeHabit);
 
 /**
  * @swagger
  * /api/habits/{id}/history:
  *   get:
- *     summary: Get habit completion history
+ *     summary: Get habit history
  *     tags: [Habits]
  *     parameters:
  *       - in: path
@@ -95,8 +94,8 @@ router.post("/:id/complete", completeHabit);
  *           type: string
  *     responses:
  *       200:
- *         description: Habit history returned successfully
+ *         description: Habit history returned
  */
-router.get("/:id/history", getHabitHistory);
+router.get("/:id/history", protect, getHabitHistory);
 
 module.exports = router;

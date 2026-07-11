@@ -2,7 +2,6 @@ export const fmt = (d) => new Date(d).toISOString().split("T")[0];
 
 export const todayStr = fmt(new Date());
 
-// Compute streak from completions array
 export const computeStreak = (completions) => {
   if (!completions || completions.length === 0) return 0;
 
@@ -28,7 +27,6 @@ export const computeStreak = (completions) => {
   return streak;
 };
 
-// Check if streak is broken (yesterday not completed)
 export const isStreakBroken = (completions) => {
   if (!completions || completions.length === 0) return false;
   const yesterday = new Date();
@@ -39,4 +37,10 @@ export const isStreakBroken = (completions) => {
     !completionDates.includes(yesterdayStr) &&
     !completionDates.includes(todayStr)
   );
+};
+
+export const getHabitStatus = (habit) => {
+  if (habit.completedToday) return "Completed";
+  if (habit.streak > 0) return "In Progress";
+  return "Pending";
 };

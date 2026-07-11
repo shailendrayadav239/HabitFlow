@@ -1,4 +1,4 @@
-import { ClipboardList, Flame, CheckCircle, Trophy } from "lucide-react";
+import { ListChecks, Flame, CalendarCheck2, Trophy } from "lucide-react";
 
 function StatsBar({ habits }) {
   const totalHabits = habits.length;
@@ -10,26 +10,30 @@ function StatsBar({ habits }) {
     {
       label: "Total Habits",
       value: totalHabits,
-      icon: <ClipboardList size={22} />,
-      color: "text-blue-500",
+      icon: <ListChecks size={20} />,
+      bg: "bg-blue-50 dark:bg-blue-950",
+      color: "text-blue-600 dark:text-blue-400",
     },
     {
       label: "Active Streaks",
       value: activeStreaks,
-      icon: <Flame size={22} />,
-      color: "text-orange-500",
+      icon: <Flame size={20} />,
+      bg: "bg-orange-50 dark:bg-orange-950",
+      color: "text-orange-500 dark:text-orange-400",
     },
     {
       label: "Completed Today",
       value: `${completedToday}/${totalHabits}`,
-      icon: <CheckCircle size={22} />,
-      color: "text-green-500",
+      icon: <CalendarCheck2 size={20} />,
+      bg: "bg-green-50 dark:bg-green-950",
+      color: "text-green-600 dark:text-green-400",
     },
     {
       label: "Best Streak",
       value: `${bestStreak} days`,
-      icon: <Trophy size={22} />,
-      color: "text-yellow-500",
+      icon: <Trophy size={20} />,
+      bg: "bg-yellow-50 dark:bg-yellow-950",
+      color: "text-yellow-600 dark:text-yellow-400",
     },
   ];
 
@@ -38,15 +42,21 @@ function StatsBar({ habits }) {
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-1 shadow-sm"
+          className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-3 shadow-sm"
         >
-          <span className={stat.color}>{stat.icon}</span>
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">
-            {stat.value}
-          </span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {stat.label}
-          </span>
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.bg} ${stat.color}`}
+          >
+            {stat.icon}
+          </div>
+          <div>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white block">
+              {stat.value}
+            </span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {stat.label}
+            </span>
+          </div>
         </div>
       ))}
     </div>

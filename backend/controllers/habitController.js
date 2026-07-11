@@ -3,7 +3,7 @@ const Habit = require("../models/Habit");
 // GET /api/habits
 const getHabits = async (req, res) => {
   try {
-    const habits = await Habit.find({ userId: "temp" });
+    const habits = await Habit.find({ userId: req.user._id });
     res.json(habits);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +13,7 @@ const getHabits = async (req, res) => {
 // POST /api/habits
 const createHabit = async (req, res) => {
   try {
-    const { name, frequency } = req.body;
+    const { name, frequency, startDate, dueDate } = req.body;
 
     if (!name || !frequency) {
       return res
@@ -24,8 +24,10 @@ const createHabit = async (req, res) => {
     const habit = await Habit.create({
       name,
       frequency,
+      startDate: startDate || Date.now(),
+      dueDate: dueDate || null,
       completions: [],
-      userId: "temp",
+      userId: req.user._id,
     });
 
     res.status(201).json(habit);
@@ -41,6 +43,10 @@ const deleteHabit = async (req, res) => {
 
     if (!habit) {
       return res.status(404).json({ message: "Habit not found" });
+    }
+
+    if (habit.userId.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized" });
     }
 
     await Habit.findByIdAndDelete(req.params.id);
@@ -59,9 +65,12 @@ const completeHabit = async (req, res) => {
       return res.status(404).json({ message: "Habit not found" });
     }
 
+    if (habit.userId.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
     const today = new Date().toISOString().split("T")[0];
 
-    // Validate no duplicate completion for same date
     const alreadyCompleted = habit.completions.some(
       (date) => new Date(date).toISOString().split("T")[0] === today,
     );

@@ -6,13 +6,10 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const connectDB = require("./config/db");
 
 dotenv.config();
-
-// Connect to MongoDB
 connectDB();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -25,11 +22,7 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "HabitFlow Habit Tracker REST API",
     },
-    servers: [
-      {
-        url: "http://localhost:5000",
-      },
-    ],
+    servers: [{ url: "http://localhost:5000" }],
   },
   apis: ["./routes/*.js"],
 };
@@ -37,16 +30,14 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Test route
 app.get("/", (req, res) => {
   res.json({ message: "HabitFlow API is running! 🌊" });
 });
 
 // Routes
-const habitRoutes = require("./routes/habitRoutes");
-app.use("/api/habits", habitRoutes);
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/habits", require("./routes/habitRoutes"));
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
