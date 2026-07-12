@@ -1,36 +1,67 @@
 import { X } from "lucide-react";
 import { useState } from "react";
-import { createHabit } from "../api/habitApi";
+import { createHabit, updateHabit } from "../api/habitApi";
 import { todayStr } from "../utils/habitUtils";
 
-function AddHabitForm({ onClose, setHabits }) {
-  const [name, setName] = useState("");
-  const [frequency, setFrequency] = useState("Daily");
-  const [startDate, setStartDate] = useState(todayStr);
-  const [dueDate, setDueDate] = useState("");
+function AddHabitForm({ onClose, setHabits, editingHabit }) {
+  const isEdit = Boolean(editingHabit);
+
+  const [name, setName] = useState(editingHabit?.name || "");
+  const [frequency, setFrequency] = useState(
+    editingHabit?.frequency || "Daily",
+  );
+  const [startDate, setStartDate] = useState(
+    editingHabit?.startDate?.split("T")[0] || todayStr,
+  );
+  const [dueDate, setDueDate] = useState(
+    editingHabit?.dueDate?.split("T")[0] || "",
+  );
   const [loading, setLoading] = useState(false);
 
-  const handleAdd = async () => {
+  const handleSubmit = async () => {
     if (!name.trim()) return;
     setLoading(true);
     try {
-      const { data } = await createHabit({
-        name: name.trim(),
-        frequency,
-        startDate,
-        dueDate: dueDate || null,
-      });
-      const newHabit = {
-        ...data,
-        id: data._id,
-        completions: [],
-        completedToday: false,
-        streak: 0,
-      };
-      setHabits((prev) => [...prev, newHabit]);
+      if (isEdit) {
+        const { data } = await updateHabit(
+          editingHabit._id || editingHabit.id,
+          {
+            name: name.trim(),
+            frequency,
+            dueDate: dueDate || null,
+          },
+        );
+        setHabits((prev) =>
+          prev.map((h) =>
+            (h._id || h.id) === (editingHabit._id || editingHabit.id)
+              ? {
+                  ...h,
+                  name: data.name,
+                  frequency: data.frequency,
+                  dueDate: data.dueDate,
+                }
+              : h,
+          ),
+        );
+      } else {
+        const { data } = await createHabit({
+          name: name.trim(),
+          frequency,
+          startDate,
+          dueDate: dueDate || null,
+        });
+        const newHabit = {
+          ...data,
+          id: data._id,
+          completions: [],
+          completedToday: false,
+          streak: 0,
+        };
+        setHabits((prev) => [...prev, newHabit]);
+      }
       onClose();
     } catch (error) {
-      console.error("Failed to create habit:", error);
+      console.error("Failed to save habit:", error);
     } finally {
       setLoading(false);
     }
@@ -41,7 +72,7 @@ function AddHabitForm({ onClose, setHabits }) {
       <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-gray-900 dark:text-white text-xl font-bold">
-            Add New Habit
+            {isEdit ? "Edit Habit" : "Add New Habit"}
           </h2>
           <button
             onClick={onClose}
@@ -86,8 +117,9 @@ function AddHabitForm({ onClose, setHabits }) {
             <input
               type="date"
               value={startDate}
+              disabled={isEdit}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             />
           </div>
           <div>
@@ -111,11 +143,11 @@ function AddHabitForm({ onClose, setHabits }) {
             Cancel
           </button>
           <button
-            onClick={handleAdd}
+            onClick={handleSubmit}
             disabled={loading}
             className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition disabled:opacity-50"
           >
-            {loading ? "Adding..." : "Add Habit"}
+            {loading ? "Saving..." : isEdit ? "Save Changes" : "Add Habit"}
           </button>
         </div>
       </div>

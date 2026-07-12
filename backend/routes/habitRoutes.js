@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getHabits,
   createHabit,
+  updateHabit,
   deleteHabit,
   completeHabit,
   getHabitHistory,
@@ -43,6 +44,37 @@ router.get("/", protect, getHabits);
  *         description: Habit created successfully
  */
 router.post("/", protect, createHabit);
+
+/**
+ * @swagger
+ * /api/habits/{id}:
+ *   put:
+ *     summary: Update a habit
+ *     tags: [Habits]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               frequency:
+ *                 type: string
+ *               dueDate:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Habit updated successfully
+ */
+router.put("/:id", protect, updateHabit);
 
 /**
  * @swagger
